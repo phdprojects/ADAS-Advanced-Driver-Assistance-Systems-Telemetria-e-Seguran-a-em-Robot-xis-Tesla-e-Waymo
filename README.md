@@ -28,7 +28,7 @@ sha256sum -c data/bag/SHA256SUMS.txt   # verificação de integridade
 
 ## Estrutura
 
-* `adas-telemetria-e-seguranca-em-robotaxis.ipynb` — estudo completo (18 células): Introdução, STEP 1 (métricas de sucesso e KPIs), STEP 2 (inspecção dos dados brutos), STEP 3/3B (parsing CAN + IMU + LiDAR), STEP 4 (features), STEP 5 (divisão temporal), STEP 6 (Random Forest), STEP 6B (LSTM), STEP 7 (visualização e conclusões), P1–P7 (perguntas de investigação)
+* `adas-telemetria-e-seguranca-em-robotaxis.ipynb` — estudo completo (19 células): Introdução, STEP 1 (métricas de sucesso e KPIs), STEP 2 (inspecção dos dados brutos), STEP 3/3B (parsing CAN + IMU + LiDAR), STEP 4 (features), STEP 5 (divisão temporal), STEP 6 (Random Forest), STEP 6B (LSTM), STEP 7 (visualização e conclusões), P1–P7 (perguntas de investigação), Conclusão (dados obtidos, modelos e algoritmos, lições de engenharia, limitações)
 * `images/` — os 3 gráficos do estudo
 * `data/` — dataset bruto (bag em partes + DBC) e derivado (CSV)
 
