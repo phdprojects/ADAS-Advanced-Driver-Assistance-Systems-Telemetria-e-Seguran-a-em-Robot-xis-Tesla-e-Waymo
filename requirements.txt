@@ -1,0 +1,7 @@
+pandas
+numpy
+scikit-learn
+matplotlib
+mcap
+cantools
+torch  # STEP 6B treina a LSTM em CPU; para CPU apenas: torch --index-url https://download.pytorch.org/whl/cpu
