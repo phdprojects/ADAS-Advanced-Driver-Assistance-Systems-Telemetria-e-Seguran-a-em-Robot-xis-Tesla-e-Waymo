@@ -2,6 +2,8 @@
 
 **Estudo de engenharia de dados sobre telemetria e segurança em robotáxis e sistemas ADAS avançados, a partir de gravações reais de sensores de um Tesla Model 3 instrumentado** (CAN bus, IMU, LiDAR, GNSS, câmara). O notebook decodifica a telemetria bruta, constrói features de condução, treina modelos de previsão de travagens iminentes (função de segurança tipo FCW — Forward Collision Warning) e responde a sete perguntas de investigação (P1–P7) com base nos dados.
 
+> **Publicado no Kaggle:** [ADAS — Telemetria e Segurança em Robotáxis (Tesla e Waymo)](https://www.kaggle.com/code/gonaldomichael/adas-telemetria-seguran-a-robot-xis-tesla-e-waymo)
+
 ## Objectivo do estudo
 
 1. **Dinâmica do veículo** — decodificar telemetria CAN/IMU de um Tesla Model 3 real (velocidade, volante, pedal de travão);
@@ -85,7 +87,9 @@ O notebook foi executado em Databricks (serverless, Python 3); a única célula 
 
 ## Kaggle
 
-Este estudo será publicado no Kaggle (importando este repositório por URL e anexando o dataset como Input).
+Este estudo está publicado no Kaggle: **[ADAS — Telemetria e Segurança em Robotáxis (Tesla e Waymo)](https://www.kaggle.com/code/gonaldomichael/adas-telemetria-seguran-a-robot-xis-tesla-e-waymo)** — notebook end-to-end com o dataset real do Tesla Model 3.
+
+Para reproduzir no Kaggle a partir deste repositório: File → Import Notebook (URL do `.ipynb` deste repo) → Settings → **Internet: ON** (o STEP 2 descarrega o bag de ~1,1 GB da HuggingFace e o DBC do GitHub).
 
 ## Licença
 
