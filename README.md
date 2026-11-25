@@ -1,6 +1,6 @@
 # ADAS — Telemetria e Segurança em Robotáxis (Tesla e Waymo)
 
-**Estudo de engenharia de dados sobre telemetria e segurança em robotáxis e sistemas ADAS avançados, a partir de gravações reais de sensores de um Tesla Model 3 instrumentado** (CAN bus, IMU, LiDAR, GNSS, câmara). O notebook decodifica a telemetria bruta, constrói features de condução, treina modelos de previsão de travagens iminentes (função de segurança tipo FCW — Forward Collision Warning) e responde a sete perguntas de investigação (P1–P7) com base nos dados.
+**Estudo de engenharia de dados sobre telemetria e segurança em robotáxis e sistemas ADAS avançados, a partir de gravações reais de sensores de um Tesla Model 3 instrumentado** (CAN bus, IMU, LiDAR, GNSS, câmara). O notebook decodifica a telemetria bruta, constrói features de condução, treina modelos de previsão de travagens iminentes (função de segurança tipo FCW — Forward Collision Warning) e responde a oito perguntas de investigação (P1–P8) com base nos dados, incluindo a detecção de peões/ciclistas com o robotaxi L4 real da Waymo (dataset motion, extraído parcialmente sem descarregar 22 GB).
 
 > **Publicado no Kaggle:** [ADAS — Telemetria e Segurança em Robotáxis (Tesla e Waymo)](https://www.kaggle.com/code/gonaldomichael/adas-telemetria-seguran-a-robot-xis-tesla-e-waymo)
 
@@ -8,7 +8,7 @@
 
 1. **Dinâmica do veículo** — decodificar telemetria CAN/IMU de um Tesla Model 3 real (velocidade, volante, pedal de travão);
 2. **Previsão de manobras críticas** — prever travagens iminentes nos próximos 2 s com base nos 2 s anteriores;
-3. **Percepção de objectos** — detectar objectos à frente via LiDAR (a classificação de peões/ciclistas com o robotaxi L4 da Waymo fica documentada como extensão natural, com as limitações registadas no notebook);
+3. **Percepção de objectos** — detectar objectos à frente via LiDAR no Tesla e classificar peões/ciclistas com o robotaxi L4 real da Waymo (W1–W2 e P8: 20 cenários do dataset motion);
 4. **KPIs de segurança e operação** — TTC/near-miss, taxa de travagens bruscas por 100 km, conforto (jerk) e latência de inferência.
 
 **Contexto:** o foco narrativo é o Tesla Cybercab/Robotaxi (transporte totalmente autónomo por visão computacional, sem volante nem pedais). Como a Tesla não publica telemetria do Cybercab, o estudo usa a única fonte Tesla real disponível — um Model 3 instrumentado com CAN + LiDAR + 4 câmaras (tfoldi/tesla3_av_rosbags, licença MIT).
@@ -30,7 +30,7 @@ sha256sum -c data/bag/SHA256SUMS.txt   # verificação de integridade
 
 ## Estrutura
 
-* `adas-telemetria-e-seguranca-em-robotaxis.ipynb` — estudo completo (19 células): Introdução, STEP 1 (métricas de sucesso e KPIs), STEP 2 (inspecção dos dados brutos), STEP 3/3B (parsing CAN + IMU + LiDAR), STEP 4 (features), STEP 5 (divisão temporal), STEP 6 (Random Forest), STEP 6B (LSTM), STEP 7 (visualização e conclusões), P1–P7 (perguntas de investigação), Conclusão (dados obtidos, modelos e algoritmos, lições de engenharia, limitações)
+* `adas-telemetria-e-seguranca-em-robotaxis.ipynb` — estudo completo (22 células): Introdução, STEP 1 (métricas de sucesso e KPIs), STEP 2 (inspecção dos dados brutos), STEP 3/3B (parsing CAN + IMU + LiDAR), STEP 4 (features), STEP 5 (divisão temporal), STEP 6 (Random Forest), STEP 6B (LSTM), STEP 7 (visualização e conclusões), P1–P7 (perguntas de investigação), STEP W1–W2 (Waymo: extracção parcial de 20 cenários do robotaxi L4 e análise de peões/ciclistas), P8 (detecção de peões/ciclistas), Conclusão (dados obtidos, modelos e algoritmos, lições de engenharia, limitações)
 * `images/` — os 3 gráficos do estudo
 * `data/` — dataset bruto (bag em partes + DBC) e derivado (CSV)
 
@@ -57,7 +57,7 @@ sha256sum -c data/bag/SHA256SUMS.txt   # verificação de integridade
 | Random Forest | 0,00 | 0,00 | 0,00 | prevê sempre “não trava” (accuracy = baseline 0,71) |
 | LSTM (CPU) | 0,10 | 0,28 | 0,15 | ~12 verdadeiros-positivos em 116 travagens; prob. máx. 0,657 |
 
-**Respostas P1–P7:**
+**Respostas P1–P8:**
 
 | P | Pergunta | Resposta em uma linha |
 | --- | --- | --- |
@@ -68,6 +68,7 @@ sha256sum -c data/bag/SHA256SUMS.txt   # verificação de integridade
 | P5 | Padrões por hora/tipo de estrada | Não respondível: um único bag (sábado 13:25 UTC, via rápida ~50 km/h); exige frota — exactamente a vantagem operacional da Waymo |
 | P6 | Antecedência suficiente para um FCW? | Não: RF recall 0,00 vs alvo 0,80, antecedência não mensurável; causa raiz é o treino (21 janelas positivas num único bag), não a arquitectura |
 | P7 | Falsos positivos/negativos | Erro dominante é o FALSO NEGATIVO (116 vs 0 FP) — o mais perigoso num ADAS; recomendação: FCW por regras físicas (TTC < 2 s) como camada de segurança |
+| P8 | Como o sistema deteta peões/ciclistas | Waymo motion (20 cenários): veículo 87,8% · peão 10,3% · ciclista 1,9%; TTC mínimo 2,07 s (nenhum < 2 s); ciclistas fecham a 3,90 m/s vs peões 1,81 m/s; detecção por fusão LiDAR + câmara (sem radar no dataset) |
 
 ## Como reproduzir
 
@@ -80,7 +81,7 @@ O notebook foi executado em Databricks (serverless, Python 3); a única célula 
 ## Nota de honestidade
 
 * Um único bag de ~145 s (bag de conveniência, 21 janelas positivas no treino vs 116 no teste) — os resultados não são generalizáveis a uma frota;
-* O LiDAR frontal (sector ±12°) não vê objectos laterais nem classifica o tipo (peão/ciclista/veículo) — a extensão natural é o dataset Waymo motion;
+* O LiDAR frontal (sector ±12°) não vê objectos laterais nem classifica o tipo (peão/ciclista/veículo) — a classificação foi analisada com 20 cenários de conveniência do Waymo motion (W1–W2/P8), não a frota inteira;
 * O CAN decodificado não expõe o estado do ACC/lane keeping;
 * Sem GPU disponível: a LSTM foi treinada em CPU (documentado no notebook);
 * Um FCW por regras de física (TTC < 2 s) seria mais fiável do que o modelo treinado com estes dados — e coexiste com ele num robotaxi real como camada de segurança.
